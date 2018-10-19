@@ -1,18 +1,14 @@
 
-package server;
+package server.nbtest;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
-
-import com.alibaba.fastjson.JSONObject;
+import server.Int2ByteUtil;
 
 
 public class ServerReadThread implements Runnable {
@@ -105,9 +101,9 @@ public class ServerReadThread implements Runnable {
                         }
                     }
                     // 客户端发送消息包处理（处理上报数据）
-//                    String lineString = new String(data);
-//                    excuteReceiveDatas(lineString);
-//                    System.out.println("当期时间："+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())+"---"+Int2ByteUtil.byte2StringHex(data));
+                    String lineString = new String(data);
+                    excuteReceiveDatas(lineString);
+                    System.out.println("当期时间："+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())+"---"+Int2ByteUtil.byte2StringHex(data));
                 }
             } catch (Exception e) {
                 System.out.println("server read thread:" + e.getMessage());

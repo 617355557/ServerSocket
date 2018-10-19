@@ -1,5 +1,5 @@
 
-package server;
+package server.nbtest_zhilian;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;

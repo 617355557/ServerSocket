@@ -1,23 +1,27 @@
 
-package server;
+package server.nbtest_zhilian;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
 
-
 import com.alibaba.fastjson.JSONObject;
 
+import server.ClientSocketUtil;
+import server.Int2ByteUtil;
 
-public class MyServerSocket {
+
+public class MyServerSocketZhilian {
     
-    private int                                      port                 = 17921;
+    private int                                      port                 = 20000;
     
     private LinkedBlockingQueue<byte[]>              queue                = new LinkedBlockingQueue<byte[]>();
     
-    private ServerSocket                             serverSocket         = null;
+    private DatagramSocket                             socket         = null;
     
     public LinkedBlockingQueue<byte[]> getQueue() {
         
@@ -37,12 +41,19 @@ public class MyServerSocket {
             public void run() {
                 
                 try {
-                    serverSocket = new ServerSocket(port);
-                    System.out.println("服务端服务启动监听：" + port);
+                    socket =new DatagramSocket(port);
+                    System.out.println("服务端UDP服务启动监听：" + port);
                     while (true) {
-                        Socket socket = serverSocket.accept();
-                        System.out.println("client连入成功:" + socket.getLocalPort());
-                        new Thread(new ServerRunnable(socket)).start();
+                        DatagramPacket packet =new DatagramPacket(new byte[512],512);
+                        socket.receive(packet);
+                        System.out.println("发送方："+packet.getSocketAddress());
+                        byte[] upByte = packet.getData();
+                        
+                        System.out.println("rec:"+Int2ByteUtil.byte2StringHex(packet.getData()));
+                        packet.setData("DDDD0000".getBytes());
+                        socket.send(packet);
+//                        System.out.println("client连入成功:" + socket.getLocalPort());
+//                        new Thread(new ServerRunnable(socket)).start();
                     }
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
@@ -67,37 +78,14 @@ public class MyServerSocket {
         @Override
         public void run() {
             
-//            new Thread(new ServerReadThread(socket, queue)).start();
+            new Thread(new ServerReadThread(socket, queue)).start();
             new Thread(new ServerWriteThread(socket, queue)).start();
-            testSend();
         }
         
     }
     
-    public void testSend() {
-    	new Thread(new Runnable() {
-			@Override
-			public void run() {
-			    int i = 0;
-				while(i<5) {
-					try {
-						//如果socket被关闭就不发送
-						JSONObject test = new JSONObject();
-						test.put("cpsn", 359369081974939L);
-						test.put("datahex", "DDDD00000F133BF3B84B0000000001");
-						queue.put(ClientSocketUtil.sendDataMessage(test.toString().getBytes()));
-					} catch (Exception e) {
-						System.out.println("server发送包："+e.getMessage());
-						break;
-					}
-					i++;
-				}
-			}
-		}).start();
-    }
-    
     public static void main(String[] args) {
         
-        new MyServerSocket().start();
+        new MyServerSocketZhilian().start();
     }
 }
